@@ -1,0 +1,21 @@
+server:
+  port: 8300
+
+spring:
+  application:
+    name: TEST-SERVICE
+  
+eureka:
+  client:
+    healthCheck:
+      enable: true
+    serviceUrl:
+      defaultZone: http://127.0.0.1:10010/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+    registry-fetch-interval-seconds: 10
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+    preferIpAddress: true
+    metadataMap:
+      instanceId: ${server.port}

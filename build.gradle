@@ -1,0 +1,75 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+
+//源代码jdk版本
+sourceCompatibility='1.8'
+targetCompatibility='1.8'
+
+//定义gradle自身需要的依赖
+buildscript {
+	repositories { maven { url 'http://my.duanpj.com/nexus/content/groups/public/' } }
+	//指定springboot的版本，其它springboot会保持与spring-boot-gradle-plugin的相同
+	dependencies { classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.3.RELEASE") }
+}
+
+repositories { maven { url 'http://my.duanpj.com/nexus/content/groups/public/' } }
+
+dependencies {
+	// spring
+	compile("org.springframework.boot:spring-boot-starter-web")
+	//spring-web
+	compile("com.duanpj:spring-web:1.0.16")
+	//swagger2
+	compile('io.springfox:springfox-swagger2:2.6.1')
+	compile('io.springfox:springfox-swagger-ui:2.6.1')
+	// test
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+def version='1.0'
+def baseName='TestAPI'
+def appName='TestAPI'
+def appMainClass = 'com.duanpj.test.TestApp'
+//编译目录
+buildDir = 'build/gradle'
+//gradle build时，指定jar的入口
+springBoot{ mainClass = appMainClass }
+
+applicationName = appName
+archivesBaseName = appName
+mainClassName = appMainClass
+
+applicationDefaultJvmArgs = ["-Xms32M", "-Xmx256M", "-DAPP_HOME=RUN_APP_HOME"]
+
+startScripts {
+	doLast {
+		unixScript.text = unixScript.text.replace('RUN_APP_HOME', '\$APP_HOME')
+		windowsScript.text = windowsScript.text.replace('APP_HOME', '%~dp0..')
+		unixScript.text = unixScript.text.replaceAll('\\nCLASSPATH=.*', java.util.regex.Matcher.quoteReplacement('\nCLASSPATH=\$APP_HOME/conf:\$APP_HOME/lib/*'))
+		windowsScript.text = windowsScript.text.replaceAll('\\nset CLASSPATH=.*', java.util.regex.Matcher.quoteReplacement('\nset CLASSPATH=%APP_HOME%\\conf;%APP_HOME%\\lib\\*'))
+	}
+}
+
+applicationDistribution.into("conf") {
+	from('src/main/resources'){
+		include "application.yml"
+		include "logback.xml"
+	}
+}
+
+configurations{
+	providedRuntime
+}
+
+distTar {
+	archiveName baseName + '-' + version + '.tar'
+}
+
+task dist {
+	dependsOn distTar
+}
+
+//中文字符集设置
+[compileJava, javadoc, compileTestJava]*.options*.encoding = 'UTF-8'
