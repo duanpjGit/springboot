@@ -41,7 +41,7 @@ applicationName = appName
 archivesBaseName = appName
 mainClassName = appMainClass
 
-applicationDefaultJvmArgs = ["-Xms32M", "-Xmx256M", "-DAPP_HOME=RUN_APP_HOME"]
+applicationDefaultJvmArgs = ["-Xms32M", "-Xmx512M", "-DAPP_HOME=RUN_APP_HOME"]
 
 startScripts {
 	doLast {
